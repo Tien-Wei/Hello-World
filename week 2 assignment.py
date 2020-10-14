@@ -1,12 +1,30 @@
 # Assignment 1
 
-Electirc guitar = 1
+Electirc guitar = {
+  "brand": "Ibanez",
+  "location": "storage room",
+  "strings": 6,
+  "color": "white"
+  "handle": True
+  }
 
-laptop brand = "Apple"
+Apple laptop = {
+  "Brand": "Apple",
+  "location": "living room",
+  "Color": "Silver",
+  }
 
-Broken nail clippers = True
+Broken nail clippers == {
+  "material": "metal",
+  "location": "trash",
+  "broke": True,
+  }
 
-My Breakfast = ["Egg","toast","cereal"]
+Breakfast = {
+  "ingredient1": "egg",
+  "ingredient2": "Toast",
+  "drink": "coffee",
+  }
 
 #assignment 2
 myDog = {
