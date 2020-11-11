@@ -1,140 +1,169 @@
-let player1;
-let player2;
-let ball;
+var player, ball, ai;
 
-function setup() {
-	createCanvas(600,400);
-	player1 = new Player();
-	player2 = new Player(width - 30);
-	ball = new Ball();
+var playerScore = 0;
+var AIScore = 0;
+
+var dots = [];
+var dSize = 10;
+var txtSize = 30;
+
+function setup(){
+    createCanvas(800,500)
+
+    player = new Player;
+    ai = new AI();
+    ball = new Ball();
+    for(let y = dSize/2; y<height; y+=dSize*2){
+        dots.push(createVector(width/2-dSize/2, y));
+
+    }
+}
+
+function draw(){
+    background(0);
+
+    noStroke();
+    fill(255, 100)
+    drawSquares();
+
+    ball.update();
+    ball.show();
+
+    player.update();
+    player.show();
+
+    ai.update();
+    ai.show(); 
+
+
+
+    drawScores();
+}
+
+function drawScores(){
+    let x1 = width/4;
+    let x2 = width*3/4;
+    let y = txtSize*1.5;
+
+    noStroke()
+    fill(255);
+    textAlign(CENTER);
+    textSize(txtSize)
+    textSize((playerScore), x1, y);
+    textSize((AIScore), x2, y)
+}
+
+function drawSquares(){
+    for(let i = 0; i<dots.length; i++){
+        let x = dots[i].x;
+        let y = dots[i].y;
+
+        rect(x,y,dSize,dSize)
+    }
+}
+
+function keyPress(){
+    if(key == 'W' || keyCode== UP_ARROW){
+        player.up();
+    }else if(key == 'S' || keyCode== DOWN_ARROW){
+        player.down();
+}
+
+function KeyReleased(){
+    if((key == 'W' || keyCode== UP_ARROW)|| (key == 'S' || keyCode== DOWN_ARROW)){
+        player.stp();
+    }}
+} 
+
+
+function Player(){
+    this.w = 15;
+    this.h = 80;
+
+    this.pos =createVector(this.w*2, height/2-this.h/2);
+    this.acc =createVector(0,0);
+    this.spd = 10;
+    this.maxSpd = 10;
+
+    this.show = function(){
+        noStroke();
+        fill(255);
+        rect(this.pos.x, this.pos.y, this.w, this.h);
+    }
+
+    this.up = function(){this.acc.y-=this.spd;}
+    this.down = function(){this.acc.y+=this.spd;}
+    this.stop = function(){this.acc.y = 0;}
+
+    this.update = function(){
+        this.acc.y= constrain(this.acc.y, -this.maxSpd, this.maxSpd);
+        this.pos.add(this.acc);
+        this.pos.y = constrain(this.pos.y, 0 , height-this.h);
+    }
+}
+
+function Ball(){
+    this.pos = createVector(width/2,height/2);
+    this.r = 10;
+    this.maxSpd = createVector(20,15);
+    
+    do{
+      this.acc = p5.Vector.random2D();
+      this.acc.setMag(random(4,6));
+    }while(abs(this.acc.x)<3 || abs(this.acc.y)<3);
+
+    this.show = function(){
+        noStroke();
+        fill(255);
+        ellipse(this.pos.x, this.pos.y, this.r*2);
+
+    }
+
+    this.update = function(){
+        this.pos.add(this.acc);
+
+        if(this.pos.y<this.r || this.pos.y>height-this.r){
+            this.acc.y*=-1;
+        }
+    }
+
 }
 
 
-function draw() {
-  background(0);
-  player1.move();
-  player1.show();
-  player2.move();
-  player2.show();
-  ball.touchLeft(player1);
-  ball.touchRight(player2);
-  ball.bouncing(player1, player2);
-  ball.move();
-  ball.show();
-  fill(255);
-  textSize(32);
-  textStyle(BOLD);
-  text(player1.score, 20, 50);
-  text(player2.score, width - 50, 50);
-}
+function AI(){
+    this.w = player.w;
+    this.h = player.h;
+    this.pos = createVector(width-this.w*3, height/2-this.h/2);
+    this.acc = createVector(0,0);
+    this.spd = 10;
 
-function keyPressed() {
-	if (key === 'w') {
-		player1.dir = -1;
-	} else if (key === 's') {
-		player1.dir = 1;
-	}
+    this.show = function(){
+        noStroke();
+        fill(255);
+        rect(this.pos.x, this.pos.y, this.w, this.h);
+    
+    }
+    this.update = function(){
+        let d1 =dist(ball.pos.x, ball.pos.y, this.pos.x, this.pos.y);
+        let d2 =dist(ball.pos.x, ball.pos.y, this.pos.x, this.pos.y+this.h);
+        let d = (d1+d2)/2;
 
-	if (key === 'i') {
-		player2.dir = -1;
-	} else if (key === 'k') {
-		player2.dir = 1;
-	}
-}
+        this.pos.add(this.acc);
+        this.pos.y = constrian(this.pos.y, 0, height-this.h);
 
-function keyReleased() {
-	if (key === 'w' || key === 's') {
-		player1.dir = 0;
-	}
-	if (key === 'i' || key === 'k') {
-		player2.dir = 0;
-	}
-}
+        if(d<450){
+            if(ball.pos.y<this.pos.y-this.h/2){
+                this.acc.y-=this.spd;
+            }else{
+                this.acc.y+=this.spd;
+            
+            }
 
-class Ball {
-	constructor(initX = width/2, initY = height / 2, initSpeed = 4, initTheta=  PI / 4, initRadius = 5) {
-		this.posVec = createVector(initX, initY);
-		this.speedVec = createVector(initSpeed * cos(initTheta), initSpeed * sin(initTheta));
-		this.radius = initRadius;
-		this.speed = initSpeed;
-	}
+            this.acc.y= constrain(this.acc.y, -this.maxSpd, this.maxSpd);
+        }else{
+            this.acc.y+=random(-this.spd*0.9, this.spd)
+        
+        }
 
-	move() {
-		//this.posVec += this.speedVec
-		this.posVec = p5.Vector.add(this.posVec, this.speedVec);
-	}
-
-	bouncing(player1, player2) {
-		if (0 > this.posVec.x) {
-			player2.score +=1;
-			this.posVec.set(width / 2, height /2);
-		}
-
-		if (this.posVec.x > width) {
-			player1.score +=1;
-			this.posVec.set(width / 2, height /2);
-		}
-
-		if (0 > this.posVec.y || this.posVec.y > height) {
-			this.speedVec.y = -this.speedVec.y;
-		}
-	}
-
-	touchLeft(player) {
-		if (((this.posVec.y + this.radius> player.y) && (this.posVec.y - this.radius < player.y + player.height))
-			&& ((this.posVec.x + this.radius > player.x) && (this.posVec.x - this.radius< player.x + player.width))) {
-			if (this.posVec.x > player.x + player.width ) {
-				let diff = this.posVec.y - player.y;
-                let theta = map(diff, 0, player.height, -PI / 4, PI/ 4);
-                this.speedVec.set(this.speed * cos(theta), this.speed * sin(theta));
-                this.posVec.set(player.x + player.width+ this.radius, this.posVec.y)
-
-			}
-		} 
-	
-	}
-
-	touchRight(player) {
-		if (((this.posVec.y + this.radius> player.y) && (this.posVec.y - this.radius < player.y + player.height))
-			&& ((this.posVec.x + this.radius > player.x) && (this.posVec.x - this.radius< player.x + player.width))) {
-			if (this.posVec.x < player.x ) {
-				let diff = this.posVec.y - player.y;
-                let theta = map(diff, 0, player.height, 5*PI/4, 3 * PI / 4);
-                this.speedVec.set(this.speed * cos(theta), this.speed * sin(theta));
-                this.posVec.set(player.x - this.radius, this.posVec.y)
-			}
-		} 
-	
-	}
-
-	show() {
-		noStroke();
-		ellipse(this.posVec.x, this.posVec.y, this.radius * 2, this.radius * 2);
-	}
-}
-
-class Player {
-	constructor(initX = 20, initY = 200) {
-		this.x = initX;
-		this.y = initY;
-		this.speed = 5;
-		this.width = 10;
-		this.height = 60;
-		this.dir = 0;
-		this.score = 0;
-	}
-
-	move() {
-		if (this.y >= 0 && this.y + this.height <= height) {
-			this.y += this.dir * this.speed;
-		} else if (this.y < 0) {
-			this.y = 0;
-		} else if (this.y + this.height > height) {
-			this.y = height - this.height;
-		}
-	}
-
-	show() {
-		rect(this.x, this.y, this.width, this.height);
-	}
+    }
 }
