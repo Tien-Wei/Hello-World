@@ -1,0 +1,24 @@
+<html>
+<head>
+  <title>Paint yourself</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsfeat/0.0.8/jsfeat-min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h3>Paint yourself <a href="sketch.js">source</a></h3>
+  <h4>Edge detection</h4>
+  <p>Adjust blur size, low and high threshold to match your desire contour</p>
+  <p>Blur Size: <input type="range" id="blurSize" value="50"></p>
+  <p>Low Threshold: <input type="range" id="lowThreshold" value="15"></p>
+  <p>High Threshold: <input type="range" id="highThreshold" value="25"></p>
+  <p>----------------------------------------------------</p>
+  <h4>Motion history</h4>
+  <p>Threshold: <input type="range" id="thresholdAmount" value="25"></p>
+  <p>Use a low thresh hold value. Remember to tick show raw image. Click take a picture, and start using your hands to paint.</p>
+  <p><input type="checkbox" id="showRaw"/><label for="showRaw">Show raw image</label></p>
+  <p><button onclick="resetBackground()">Take a picture</button></p>
+  <script src="sketch.js"></script>
+</body>
+</html>
